@@ -1,30 +1,32 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { useAuth } from '@/contexts/AuthContext'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-})
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
-type LoginFormData = z.infer<typeof loginSchema>
+type LoginFormData = z.infer<typeof loginSchema>;
 
 interface LoginFormProps {
-  onToggleMode: () => void
+  onToggleMode: () => void;
 }
 
 export default function LoginForm({ onToggleMode }: LoginFormProps) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const { signIn } = useAuth()
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { signIn } = useAuth();
+  const router = useRouter();
 
   const {
     register,
@@ -32,20 +34,22 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-  })
+  });
 
   const onSubmit = async (data: LoginFormData) => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
-    const { error } = await signIn(data.email, data.password)
-    
+    const { error } = await signIn(data.email, data.password);
+
     if (error) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+      setError(error instanceof Error ? error.message : "An error occurred");
+    } else {
+      router.push("/dashboard/contacts");
     }
-    
-    setIsLoading(false)
-  }
+
+    setIsLoading(false);
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -63,7 +67,7 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
-              {...register('email')}
+              {...register("email")}
               type="email"
               id="email"
               placeholder="Enter your email"
@@ -76,28 +80,30 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input
-              {...register('password')}
+              {...register("password")}
               type="password"
               id="password"
               placeholder="Enter your password"
             />
             {errors.password && (
-              <p className="text-sm text-destructive">{errors.password.message}</p>
+              <p className="text-sm text-destructive">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
           <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
 
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{' '}
+          Don&apos;t have an account?{" "}
           <Button variant="link" onClick={onToggleMode} className="p-0 h-auto">
             Sign up
           </Button>
         </p>
       </CardContent>
     </Card>
-  )
+  );
 }

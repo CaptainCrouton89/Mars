@@ -1,35 +1,45 @@
-'use client'
+"use client";
 
-import { useAuth } from '@/contexts/AuthContext'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Users, Briefcase, MessageSquare, Settings, LogOut } from 'lucide-react'
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  Briefcase,
+  LogOut,
+  MessageSquare,
+  Settings,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navigation = [
-  { name: 'Contacts', href: '/dashboard/contacts', icon: Users },
-  { name: 'Opportunities', href: '/dashboard/opportunities', icon: Briefcase },
-  { name: 'Interactions', href: '/dashboard/interactions', icon: MessageSquare },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
-]
+  { name: "Contacts", href: "/dashboard/contacts", icon: Users },
+  { name: "Opportunities", href: "/dashboard/opportunities", icon: Briefcase },
+  {
+    name: "Interactions",
+    href: "/dashboard/interactions",
+    icon: MessageSquare,
+  },
+  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+];
 
 export default function AppSidebar() {
-  const pathname = usePathname()
-  const { signOut, user } = useAuth()
+  const pathname = usePathname();
+  const { signOut, user } = useAuth();
 
   const handleSignOut = async () => {
-    await signOut()
-  }
+    await signOut();
+  };
 
   return (
     <div className="flex h-full w-64 flex-col bg-card border-r">
       <div className="flex h-16 items-center px-6 border-b">
         <h1 className="text-xl font-bold">Mars CRM</h1>
       </div>
-      
+
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navigation.map((item) => {
-          const isActive = pathname.startsWith(item.href)
+          const isActive = pathname.startsWith(item.href);
           return (
             <Link key={item.name} href={item.href}>
               <Button
@@ -40,10 +50,10 @@ export default function AppSidebar() {
                 {item.name}
               </Button>
             </Link>
-          )
+          );
         })}
       </nav>
-      
+
       <div className="border-t p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -52,11 +62,6 @@ export default function AppSidebar() {
                 {user?.email?.[0]?.toUpperCase()}
               </span>
             </div>
-            <div className="ml-3 min-w-0 flex-1">
-              <p className="text-sm font-medium truncate">
-                {user?.email}
-              </p>
-            </div>
           </div>
           <Button variant="ghost" size="sm" onClick={handleSignOut}>
             <LogOut className="h-4 w-4" />
@@ -64,5 +69,5 @@ export default function AppSidebar() {
         </div>
       </div>
     </div>
-  )
+  );
 }
