@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -12,10 +12,11 @@ import Link from 'next/link'
 import { ArrowLeft, Edit, Trash2, Mail, Phone, Building, MapPin, Calendar, Globe, ExternalLink } from 'lucide-react'
 
 interface ContactDetailPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-export default function ContactDetailPage({ params }: ContactDetailPageProps) {
+export default function ContactDetailPage({ params: paramsPromise }: ContactDetailPageProps) {
+  const [params, setParams] = useState<{ id: string } | null>(null)
   const [contact, setContact] = useState<Contact | null>(null)
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
@@ -23,17 +24,15 @@ export default function ContactDetailPage({ params }: ContactDetailPageProps) {
   const router = useRouter()
 
   useEffect(() => {
-    if (user && params.id) {
-      fetchContact()
-    }
-  }, [user, params.id])
+    paramsPromise.then(setParams)
+  }, [paramsPromise])
 
-  const fetchContact = async () => {
+  const fetchContact = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('contacts')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', params?.id)
         .single()
 
       if (error) throw error
@@ -44,7 +43,13 @@ export default function ContactDetailPage({ params }: ContactDetailPageProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params?.id, router])
+
+  useEffect(() => {
+    if (user && params?.id) {
+      fetchContact()
+    }
+  }, [user, params?.id, fetchContact])
 
   const handleDelete = async () => {
     if (!contact || !confirm('Are you sure you want to delete this contact? This action cannot be undone.')) {

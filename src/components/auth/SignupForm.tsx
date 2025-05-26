@@ -46,7 +46,7 @@ export default function SignupForm({ onToggleMode }: SignupFormProps) {
     const { error } = await signUp(data.email, data.password)
     
     if (error) {
-      setError(error.message)
+      setError(error instanceof Error ? error.message : 'An error occurred')
     } else {
       setSuccess(true)
     }
@@ -60,7 +60,7 @@ export default function SignupForm({ onToggleMode }: SignupFormProps) {
         <CardContent className="pt-6">
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             <h3 className="font-bold">Check your email!</h3>
-            <p>We've sent you a confirmation link to complete your registration.</p>
+            <p>We&apos;ve sent you a confirmation link to complete your registration.</p>
           </div>
           <Button onClick={onToggleMode} className="w-full">
             Back to Sign In

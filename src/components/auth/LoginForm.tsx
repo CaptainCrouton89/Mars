@@ -41,7 +41,7 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
     const { error } = await signIn(data.email, data.password)
     
     if (error) {
-      setError(error.message)
+      setError(error instanceof Error ? error.message : 'An error occurred')
     }
     
     setIsLoading(false)
@@ -92,7 +92,7 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
         </form>
 
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Button variant="link" onClick={onToggleMode} className="p-0 h-auto">
             Sign up
           </Button>

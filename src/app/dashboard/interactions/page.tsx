@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { Interaction, INTERACTION_TYPES } from '@/types/database'
+import { Interaction, Contact, INTERACTION_TYPES } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import { Plus, Search, MessageSquare, User, Calendar, AlertCircle } from 'lucide-react'
+import { Plus, Search, MessageSquare, User, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
 export default function InteractionsPage() {
@@ -56,7 +56,7 @@ export default function InteractionsPage() {
     return matchesSearch && matchesType
   })
 
-  const getContactDisplayName = (contact: any) => {
+  const getContactDisplayName = (contact: Contact | null) => {
     if (!contact) return 'Unknown Contact'
     const name = [contact.first_name, contact.last_name].filter(Boolean).join(' ')
     return name || contact.email || 'Unnamed Contact'
@@ -172,7 +172,7 @@ export default function InteractionsPage() {
                         )}
                       </div>
                       <CardTitle className="text-lg mb-1">
-                        {getContactDisplayName(interaction.contact)}
+                        {getContactDisplayName(interaction.contact || null)}
                       </CardTitle>
                       {interaction.contact?.company && (
                         <p className="text-sm text-muted-foreground">

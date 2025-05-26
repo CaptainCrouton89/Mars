@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { Profile } from '@/types/database'
@@ -32,18 +32,12 @@ export default function SettingsPage() {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: {},
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
   })
 
-  useEffect(() => {
-    if (user) {
-      fetchProfile()
-    }
-  }, [user])
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -72,7 +66,13 @@ export default function SettingsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user?.id, reset])
+
+  useEffect(() => {
+    if (user) {
+      fetchProfile()
+    }
+  }, [user, fetchProfile])
 
   const onSubmit = async (data: ProfileFormData) => {
     if (!user) return
@@ -100,8 +100,8 @@ export default function SettingsPage() {
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
       await fetchProfile()
-    } catch (error: any) {
-      setError(error.message)
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setIsSubmitting(false)
     }

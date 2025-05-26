@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -38,16 +38,21 @@ const contactSchema = z.object({
 type ContactFormData = z.infer<typeof contactSchema>
 
 interface EditContactPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-export default function EditContactPage({ params }: EditContactPageProps) {
+export default function EditContactPage({ params: paramsPromise }: EditContactPageProps) {
+  const [params, setParams] = useState<{ id: string } | null>(null)
   const [contact, setContact] = useState<Contact | null>(null)
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { user } = useAuth()
   const router = useRouter()
+
+  useEffect(() => {
+    paramsPromise.then(setParams)
+  }, [paramsPromise])
 
   const {
     register,
@@ -58,18 +63,12 @@ export default function EditContactPage({ params }: EditContactPageProps) {
     resolver: zodResolver(contactSchema),
   })
 
-  useEffect(() => {
-    if (user && params.id) {
-      fetchContact()
-    }
-  }, [user, params.id])
-
-  const fetchContact = async () => {
+  const fetchContact = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('contacts')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', params?.id)
         .single()
 
       if (error) throw error
@@ -97,7 +96,13 @@ export default function EditContactPage({ params }: EditContactPageProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params?.id, reset, router])
+
+  useEffect(() => {
+    if (user && params?.id) {
+      fetchContact()
+    }
+  }, [user, params?.id, fetchContact])
 
   const onSubmit = async (data: ContactFormData) => {
     if (!user || !contact) return
@@ -123,8 +128,8 @@ export default function EditContactPage({ params }: EditContactPageProps) {
       if (error) throw error
 
       router.push(`/dashboard/contacts/${contact.id}`)
-    } catch (error: any) {
-      setError(error.message)
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setIsSubmitting(false)
     }
@@ -172,7 +177,7 @@ export default function EditContactPage({ params }: EditContactPageProps) {
           <div>
             <h1 className="text-3xl font-bold">Edit Contact</h1>
             <p className="text-muted-foreground">
-              Update {getContactDisplayName(contact)}'s information
+              Update {getContactDisplayName(contact)}&apos;s information
             </p>
           </div>
         </div>

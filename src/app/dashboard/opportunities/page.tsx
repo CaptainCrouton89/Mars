@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { Opportunity, OPPORTUNITY_STAGES } from '@/types/database'
+import { Opportunity, Contact, OPPORTUNITY_STAGES } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -81,7 +81,7 @@ export default function OpportunitiesPage() {
     return new Date(dateString).toLocaleDateString()
   }
 
-  const getContactDisplayName = (contact: any) => {
+  const getContactDisplayName = (contact: Contact | null) => {
     if (!contact) return 'Unknown Contact'
     const name = [contact.first_name, contact.last_name].filter(Boolean).join(' ')
     return name || contact.email || 'Unnamed Contact'
@@ -170,7 +170,7 @@ export default function OpportunitiesPage() {
                         </CardTitle>
                         <div className="flex items-center text-sm text-muted-foreground">
                           <User className="h-4 w-4 mr-1 flex-shrink-0" />
-                          <span className="truncate">{getContactDisplayName(opportunity.contact)}</span>
+                          <span className="truncate">{getContactDisplayName(opportunity.contact || null)}</span>
                         </div>
                       </div>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStageColor(opportunity.stage)}`}>
@@ -184,7 +184,7 @@ export default function OpportunitiesPage() {
                         <div className="flex items-center text-sm">
                           <DollarSign className="h-4 w-4 mr-2 text-green-600" />
                           <span className="font-medium">
-                            {formatCurrency(opportunity.value, opportunity.currency)}
+                            {formatCurrency(opportunity.value, opportunity.currency || null)}
                           </span>
                         </div>
                       )}
