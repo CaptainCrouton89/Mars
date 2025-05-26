@@ -1,7 +1,7 @@
+import { AuthProvider } from "@/contexts/AuthContext";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,6 +16,23 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Mars CRM",
   description: "Your personal contact management system",
+  icons: {
+    icon: "/favicon.svg",
+  },
+  openGraph: {
+    title: "Mars CRM",
+    description:
+      "A minimalist, single-user personal CRM built with Next.js and Supabase",
+    type: "website",
+    locale: "en_US",
+    siteName: "Mars CRM",
+  },
+  twitter: {
+    card: "summary",
+    title: "Mars CRM",
+    description:
+      "A minimalist, single-user personal CRM built with Next.js and Supabase",
+  },
 };
 
 export default function RootLayout({
@@ -28,9 +45,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
