@@ -58,7 +58,7 @@ export default function SignupForm({ onToggleMode }: SignupFormProps) {
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardContent className="pt-6">
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded mb-4">
             <h3 className="font-bold">Check your email!</h3>
             <p>We&apos;ve sent you a confirmation link to complete your registration.</p>
           </div>

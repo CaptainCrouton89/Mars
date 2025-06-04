@@ -80,7 +80,7 @@ export default function InteractionsPage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
         </div>
       </DashboardLayout>
     )
@@ -88,110 +88,116 @@ export default function InteractionsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Interactions</h1>
+            <h1 className="text-3xl font-semibold text-foreground mb-2">Interactions</h1>
             <p className="text-muted-foreground">
               Track all your communications and follow-ups
             </p>
           </div>
           <Link href="/dashboard/interactions/new">
-            <Button>
+            <Button size="lg" className="shadow-sm hover:shadow-md transition-shadow">
               <Plus className="h-4 w-4 mr-2" />
               Log Interaction
             </Button>
           </Link>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Search interactions..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search interactions..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 h-10"
+              />
+            </div>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="h-10 px-3 py-2 border border-input rounded-md bg-background text-sm"
+            >
+              <option value="all">All Types</option>
+              {INTERACTION_TYPES.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
           </div>
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-3 py-2 border border-input rounded-md bg-background text-sm"
-          >
-            <option value="all">All Types</option>
-            {INTERACTION_TYPES.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
         </div>
 
         {filteredInteractions.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No interactions found</h3>
-              <p className="text-muted-foreground text-center mb-4">
-                {searchTerm || typeFilter !== 'all' 
-                  ? 'Try adjusting your search or filter criteria.' 
-                  : 'Get started by logging your first interaction.'}
-              </p>
-              {!searchTerm && typeFilter === 'all' && (
-                <Link href="/dashboard/interactions/new">
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Log Interaction
-                  </Button>
-                </Link>
-              )}
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+              <MessageSquare className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-medium mb-2">
+              {searchTerm || typeFilter !== 'all'
+                ? "No matches found"
+                : "No interactions yet"}
+            </h3>
+            <p className="text-muted-foreground text-sm max-w-sm text-center mb-6">
+              {searchTerm || typeFilter !== 'all'
+                ? "Try adjusting your search or filter"
+                : "Get started by logging your first interaction"}
+            </p>
+            {!searchTerm && typeFilter === 'all' && (
+              <Link href="/dashboard/interactions/new">
+                <Button className="shadow-sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Log Interaction
+                </Button>
+              </Link>
+            )}
+          </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredInteractions.map((interaction) => (
-              <Card key={interaction.id} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
+              <Card key={interaction.id} className="hover:shadow-md transition-all duration-200 cursor-pointer border-border/50 hover:border-border">
+                <CardHeader className="p-4 pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <span className="px-2 py-1 bg-primary/10 text-primary rounded text-sm font-medium">
+                      <div className="flex items-center flex-wrap gap-2 mb-2">
+                        <span className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
                           {interaction.type}
                         </span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {formatDateTime(interaction.date_of_interaction)}
                         </span>
                         {interaction.follow_up_needed && interaction.follow_up_date && (
-                          <div className={`flex items-center text-sm ${
+                          <div className={`flex items-center text-xs ${
                             isFollowUpOverdue(interaction.follow_up_date) 
                               ? 'text-destructive' 
                               : 'text-orange-600'
                           }`}>
-                            <AlertCircle className="h-4 w-4 mr-1" />
+                            <AlertCircle className="h-3 w-3 mr-1" />
                             Follow-up: {formatDate(interaction.follow_up_date)}
                           </div>
                         )}
                       </div>
-                      <CardTitle className="text-lg mb-1">
+                      <CardTitle className="text-base font-medium mb-1">
                         {getContactDisplayName(interaction.contact || null)}
                       </CardTitle>
                       {interaction.contact?.company && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           {interaction.contact.company}
                         </p>
                       )}
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0">
+                <CardContent className="p-4 pt-0">
                   <div className="space-y-3">
-                    <p className="text-sm">{interaction.summary}</p>
+                    <p className="text-sm text-muted-foreground">{interaction.summary}</p>
                     
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <div className="flex items-center">
-                        <User className="h-4 w-4 mr-1" />
+                        <User className="h-3 w-3 mr-1.5" />
                         <Link 
                           href={`/dashboard/contacts/${interaction.contact_id}`}
-                          className="hover:text-primary hover:underline"
+                          className="hover:text-primary transition-colors"
                         >
                           View Contact
                         </Link>
@@ -201,7 +207,7 @@ export default function InteractionsPage() {
                           <span className="mr-2">Opportunity:</span>
                           <Link 
                             href={`/dashboard/opportunities/${interaction.opportunity_id}`}
-                            className="hover:text-primary hover:underline"
+                            className="hover:text-primary transition-colors"
                           >
                             {interaction.opportunity.name}
                           </Link>
